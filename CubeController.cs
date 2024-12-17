@@ -1,58 +1,47 @@
 using UnityEngine;
+using System;
 using Random = UnityEngine.Random;
 
-public class CubeController : MonoBehaviour
+public class Cube : MonoBehaviour 
 {
-    [SerializeField] private CubePool _cubePool;
-    [SerializeField] private float _deathTime = 1f;
-    [SerializeField] private float _minLifeTime = 2f;
-    [SerializeField] private float _maxLifeTime = 5f;
-    
-    private bool _hasColorChanghed = false;
+    private bool _hasColorChanged = false;
+    private float _deathTime = -1f;
     private Renderer _rend;
+    
+    public event Action<Cube> OnLifeEnded;
 
-    private void Awake()
+    void Awake() 
     {
         _rend = GetComponent<Renderer>();
-
-        _cubePool = FindObjectOfType<CubePool>();
     }
 
-    private void Start()
+    void Update() 
     {
-        ResetCube();
-    }
-
-    private void Update()
-    {
-        if (_deathTime > 0 && Time.time > _deathTime)
+        if (_deathTime > 0 && Time.time > _deathTime) 
         {
-            _cubePool.ReturnCube(gameObject);
-
+            if (OnLifeEnded != null) {
+                OnLifeEnded(this);
+            }
+            
             ResetCube();
         }
     }
 
-    public void OnPlatformHit()
+    public void OnPlatformHit() 
     {
-        if (!_hasColorChanghed)
+        if (_hasColorChanged == false) 
         {
-            float lifeTime = Random.Range(_minLifeTime, _maxLifeTime);
-            
-            _hasColorChanghed = true;
-            
-            _rend.material.color = Color.green;
-            
+            _hasColorChanged = true;
+            _rend.material.color = Color.red;
+            float lifeTime = Random.Range(2f, 5f);
             _deathTime = Time.time + lifeTime;
         }
     }
 
-    private void ResetCube()
+    public void ResetCube() 
     {
-        _hasColorChanghed = false;
-
+        _hasColorChanged = false;
         _deathTime = -1f;
-        
         _rend.material.color = Color.white;
     }
 }

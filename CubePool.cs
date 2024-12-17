@@ -1,39 +1,44 @@
 using UnityEngine;
-using UnityEngine.Pool;
+using System.Collections.Generic;
 
-public class CubePool : MonoBehaviour
+public class CubePool : MonoBehaviour 
 {
-    [SerializeField] private GameObject _cubePrefab;
-    [SerializeField] private int _cubeCount;
-    [SerializeField] private int _maxCount;
-    
-    private ObjectPool<GameObject> _pool;
+    [SerializeField] private Cube _cubePrefab;
+    [SerializeField] private int _poolSize = 50;
 
-    private void Awake()
-    {
-        _pool = new ObjectPool<GameObject>(
-            createFunc: () => Instantiate(_cubePrefab),
-            actionOnGet: (cube) => cube.SetActive(true),
-            actionOnRelease: (cube) => cube.SetActive(false),
-            actionOnDestroy: (cube) => Destroy(cube),
-            collectionCheck: false,
-            defaultCapacity: _cubeCount,
-            maxSize: _maxCount);
+    private Queue<Cube> pool = new Queue<Cube>();
 
-        for (int i = 0; i < _cubeCount; i++)
+    void Awake() {
+        for (int i = 0; i < _poolSize; i++) 
         {
-            GameObject cube = _pool.Get();
-            _pool.Release(cube);
+            Cube cube = Instantiate(_cubePrefab, transform);
+            cube.gameObject.SetActive(false);
+
+            cube.OnLifeEnded += HandleCubeLifeEnded;
+            pool.Enqueue(cube);
         }
     }
-
-    public GameObject GetCube()
-    {
-        return _pool.Get();
+    
+    public Cube GetCube() {
+        if (pool.Count > 0) 
+        {
+            Cube cube = pool.Dequeue();
+            cube.ResetCube(); 
+            cube.gameObject.SetActive(true);
+            return cube;
+        } 
+        else 
+        {
+            Cube cube = Instantiate(_cubePrefab, transform);
+            cube.OnLifeEnded += HandleCubeLifeEnded;
+            cube.gameObject.SetActive(true);
+            return cube;
+        }
     }
-
-    public void ReturnCube(GameObject cube)
+    
+    private void HandleCubeLifeEnded(Cube cube) 
     {
-        _pool.Release(cube);
+        cube.gameObject.SetActive(false);
+        pool.Enqueue(cube);
     }
 }
