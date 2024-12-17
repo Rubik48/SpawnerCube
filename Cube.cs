@@ -19,7 +19,8 @@ public class Cube : MonoBehaviour
     {
         if (_deathTime > 0 && Time.time > _deathTime) 
         {
-            if (OnLifeEnded != null) {
+            if (OnLifeEnded != null) 
+            {
                 OnLifeEnded(this);
             }
             
@@ -33,6 +34,7 @@ public class Cube : MonoBehaviour
         {
             _hasColorChanged = true;
             _rend.material.color = Color.red;
+            
             float lifeTime = Random.Range(2f, 5f);
             _deathTime = Time.time + lifeTime;
         }

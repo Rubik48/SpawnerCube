@@ -20,6 +20,7 @@ public class CubeSpawner : MonoBehaviour
         {
             float x = Random.Range(-_spawnAreaSize.x / 2f, _spawnAreaSize.x / 2f);
             float z = Random.Range(-_spawnAreaSize.z / 2f, _spawnAreaSize.z / 2f);
+            
             cube.transform.position = new Vector3(x, _spawnHeight, z);
         }
     }
